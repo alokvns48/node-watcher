@@ -28,11 +28,27 @@ program
       proc = spawn("node", [name], { stdio: "inherit" });
     }, 100);
 
+    const change = debounce(() => {
+      if (proc) {
+        proc.kill();
+      }
+      console.log(chalk.blue(">>>> File changed..."));
+      proc = spawn("node", [name], { stdio: "inherit" });
+    }, 100);
+
+    const deleted = debounce(() => {
+      if (proc) {
+        proc.kill();
+      }
+      console.log(chalk.blue(">>>> File deleted..."));
+      proc = spawn("node", [name], { stdio: "inherit" });
+    }, 100);
+
     chokidar
       .watch(".")
       .on("add", start)
-      .on("change", start)
-      .on("unlink", start);
+      .on("change", change)
+      .on("unlink", deleted);
   });
 
 program.parse(process.argv);
